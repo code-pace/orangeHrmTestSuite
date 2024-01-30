@@ -37,8 +37,23 @@ it('login with valid username and valid password', ()=> {
 it('Verify user can logout and redirected to the login page', ()=> {
   cy.login("Admin", "admin123")
   cy.get('.oxd-userdropdown-tab').click()
-  cy.wait(3000)
   cy.contains('Logout').click()
-  cy.wait(3000)
   cy.get("h5.orangehrm-login-title").should('have.text', 'Login') 
+})
+
+it('user is redirected to the password reset page when forgot your password link is clicked', ()=> {
+  cy.contains('Forgot your password?').click()
+  cy.get('.orangehrm-forgot-password-title').should('have.text', 'Reset Password')
+})
+it('user cannot reset password with an empty field', ()=> {
+  cy.contains('Forgot your password?').click()
+  cy.get('input[name="username"]').clear()
+  cy.get('button[type="submit"]').click()
+  cy.get('span.oxd-input-field-error-message').should('have.text', 'Required')
+})
+it('user can reset password', ()=> {
+  cy.contains('Forgot your password?').click()
+  cy.get('input[name="username"]').clear().type('Admin')
+  cy.get('button[type="submit"]').click()
+  cy.get('.orangehrm-forgot-password-title').should('have.text', 'Reset Password link sent successfully')
 })
