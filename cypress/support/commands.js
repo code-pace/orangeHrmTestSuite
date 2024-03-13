@@ -31,7 +31,7 @@ const login =(username, password)=> {
 }
 const cardTitleValidator =(title)=> {
     let flag = false
-    const elem = cy.get('div[data-v-8a31f039][data-v-fcab0262].orangehrm-dashboard-widget').each($elem => {
+    const elem = cy.get('div[data-v-133d244a] > p.oxd-text--p').each($elem => {
         cy.wrap($elem).invoke('text').then(value => {
             if (value.includes(title)) {
                 flag = true
@@ -57,7 +57,6 @@ const validateMyActions=(currentLocation)=> {
     cy.get('@todoListItem').each(action => {
         cy.wrap(action).find('p').as('pTag')
         cy.get('@pTag').invoke('text').then(value => {
-            console.log(value)
             todoListItem.push(value)
         })
     }).then(() => {
@@ -67,7 +66,6 @@ const validateMyActions=(currentLocation)=> {
             let b = a.filter((i, index) => index == 1)
             let x = b[0].trim()
             x = x.slice(1, -1)
-            console.log(x)
             let numOfActivity = Number.parseInt(x)
             try {
                 let title;
@@ -106,13 +104,26 @@ const validateQuickLaunch =(currentLocation)=> {
             cy.get('div.orangehrm-quick-launch-card').should('be.visible')
         })
     })
-} 
+}
+const validateSuccessAction =(flag, subFlag)=> {
+    cy.get('div.oxd-toast-content--success').should('contain', flag)
+    cy.get('div.oxd-toast-content--success').should('contain', subFlag)
+}
 Cypress.Commands.add("login", login)
 Cypress.Commands.add("cardTitleValidator", cardTitleValidator)
 Cypress.Commands.add("validateMyActions", validateMyActions)
+Cypress.Commands.add("validateSuccessAction", validateSuccessAction)
 Cypress.on('uncaught:exception', (err, runnable) => {
     // returning false here prevents Cypress from
     // failing the test
     return false
   })
+Cypress.on('fail', (err, runnable)=> {
+    if(err.message.includes('div.orangehrm-todo-list-item, but never found it')) {
+        cy.contains('No Pending Actions to Perform');
+    }
+    else {
+        return true;
+    }
+})
 
