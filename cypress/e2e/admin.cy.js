@@ -1,5 +1,9 @@
 import Admin from '../pageObj/admin';
-const employeeName = "Franklin_Odaga"
+const userName = "Franklin_Odaga"
+const employeeName = "Odis  Adalwin"
+const password = 'Newuser11@'
+const userName2 = "HarryDtester"
+const password2 = 'GPSnavigation2@'
 beforeEach('Navigate to Admin user management module', ()=> {
     cy.visit('https://opensource-demo.orangehrmlive.com/')
     cy.login('Admin', 'admin123')
@@ -24,36 +28,74 @@ it('Verify user can create an employee', ()=> {
     admin.roleMenuItems()
     admin.clickEmployeeBtn('Add')
     admin.getAddEmployeeTitle().should('have.text', "Add User")
-    admin.selectDropdown(0)
-    admin.getEmployerInputField().type('Frank Odega Luck')
-    admin.getAddEmployeeOptions('Frank Odega Luck').click()
-    admin.populateInputField(employeeName, 'Newuser11@', 'Newuser11@')
+    admin.selectEmployeeDropdownOptions(0, 'Admin')
+    admin.selectEmployeeDropdownOptions(1, 'Enabled')
+    admin.getEmployeeInputField().type(employeeName)
+    admin.getAddEmployeeOptions(employeeName).click()
+    admin.populateInputField(userName, password, password)
     admin.getSubmitBtn()
     admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Saved'))
 })
 
 it('Verify user can filter by employee username', ()=> {
     const admin = new Admin()
-    admin.employeeInputSearchField(employeeName)
+    admin.employeeInputSearchField(userName)
     admin.clickEmployeeBtn('Search')
-    admin.userExists(employeeName)
+    admin.checkValueExists(userName)
 })
 
-// it('Verify user can filter by user role', ()=> {
+it('Verify user can filter by user role', ()=> {
+    const admin = new Admin()
+    /**Test ADMIN user role option */
+    admin.selectEmployeeDropdownOptions(0, 'Admin')
+    admin.clickEmployeeBtn('Search')
+    admin.checkValueExists('Admin')
+    /**Test ESS user role option */
+    admin.selectEmployeeDropdownOptions(0, 'ESS')
+    admin.clickEmployeeBtn('Search')
+    admin.checkValueExists('ESS')
+})
 
-// })
+it('Verify user can filter by status', ()=> {
+    const admin = new Admin()
+    /**Test Enabled Status */
+    admin.selectEmployeeDropdownOptions(1, 'Enabled')
+    admin.clickEmployeeBtn('Search')
+    admin.checkValueExists('Enabled')
+    /**Test Disabled Status */
+    admin.selectEmployeeDropdownOptions(1, 'Disabled')
+    admin.clickEmployeeBtn('Search')
+    admin.checkValueExists('Disabled')
+})
 
-// it('Verify user can filter by status', ()=> {
+it('Verify user can filter by employee name', ()=> {
+    const admin = new Admin()
+    admin.getEmployeeInputField().type(employeeName)
+    admin.getAddEmployeeOptions(employeeName).click()
+    admin.clickEmployeeBtn('Search')
+    admin.checkValueExists(employeeName)
+})
 
-// })
-
-// it('Verify user can filter by employee name', ()=> {
-
-// })
-
-// it('Verify user can edit an employee detail', ()=> {
-
-// })
+it('Verify user can edit an employee detail', ()=> {
+    const admin = new Admin()
+    admin.employeeInputSearchField(userName)
+    admin.clickEmployeeBtn('Search')
+    admin.checkValueExists(userName)
+    admin.clickEditBtn()
+    admin.adminAction(()=> cy.wait(2000))
+    admin.getAddEmployeeTitle().should('have.text', "Edit User")
+    admin.selectEmployeeDropdownOptions(0, 'ESS')
+    admin.selectEmployeeDropdownOptions(1, 'Disabled')
+    admin.checkDisplayPassword()
+    admin.populateInputField(userName2, password2, password2)
+    admin.getSubmitBtn()
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Saved'))
+    admin.employeeInputSearchField(userName2)
+    admin.clickEmployeeBtn('Search')
+    admin.checkValueExists(userName2)
+    admin.checkValueExists('ESS')
+    admin.checkValueExists('Disabled')
+})
 
 // it('Verify user can delete employee detail', ()=> {
 
