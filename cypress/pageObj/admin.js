@@ -7,8 +7,14 @@ class Admin {
     gotoUserManagementBtn() {
         cy.xpath('//span[text()="User Management "]').click()
     }
+    gotoAdminMenu(menu) {
+        cy.xpath(`//span[text()="${menu} "]`).click()
+    }
     roleMenuItems() {
         cy.get('a[role="menuitem"]').click()
+    }
+    selectRoleMenuItems(menuItem) {
+        cy.xpath(`//a[@role="menuitem" and text()="${menuItem}"]`).click()
     }
     clickEmployeeBtn(text) {
         cy.xpath(`//button[text()=" ${text} "]`).click()
@@ -17,7 +23,8 @@ class Admin {
         return cy.get('h6.orangehrm-main-title')
     }
     getAddEmployeeOptions(text) {
-        return cy.xpath(`//div[@role="option"]//span[text()="${text}"][1]`)
+        return cy.get('div[role="option"]').contains(text)
+        //return cy.xpath(`//div[@role="option"]//span[text()="${text}"][1]`)
     }
     getSubmitBtn() {
         cy.get('button[type="submit"]').click()
@@ -25,8 +32,21 @@ class Admin {
     getEmployeeInputField() {
         return cy.get('input[placeholder="Type for hints..."]')
     }
-    employeeInputSearchField(employee) {
-        cy.get('div[data-v-957b4417] > input').type(employee)
+    employeeInputField(employee) {
+        cy.get('div[data-v-957b4417] > input.oxd-input--active').clear().type(employee)
+    }
+    addDescription(field, message) {
+        const fields = []
+        cy.get('textarea.oxd-textarea--active').each(value=> {
+            fields.push(value)
+        }).then(()=> {
+            if(field == 'Job Description') {
+                cy.wrap(fields[0]).clear().type(message)
+            }
+            else if(field == 'Note') {
+                cy.wrap(fields[0]).clear().type(message)
+            }
+        })
     }
     checkDisplayPassword() {
         cy.get('input[type="checkbox"]').should('not.be.checked')
@@ -50,24 +70,29 @@ class Admin {
         this.getAddEmployeeOptions(options).click()
     })
    }
-   clickEditBtn() {
+   clickRecordActionBtn(action) {
     const actions = []
     cy.get('div[data-v-c423d1fa]').each(value => {
         actions.push(value)
     }).then(()=> {
-        cy.wrap(actions[0]).find('button:nth-child(2)').click()
+        if(action == "edit") {
+            cy.wrap(actions[0]).find('button:nth-child(2)').click()
+        }
+        else if(action == "delete") {
+            cy.wrap(actions[0]).find('button:nth-child(1)').click()
+        }  
     })
    }
     populateInputField(username, password1, password2) {
         cy.xpath('//div[contains(@class,"oxd-input-group")]//input[contains(@class,"oxd-input--active")]').each((elem, index)=> {
             if(index == 0) {
-                cy.wrap(elem).type(username)
+                cy.wrap(elem).clear().type(username)
             }
             else if(index == 1) {
-                cy.wrap(elem).type(password1)
+                cy.wrap(elem).clear().type(password1)
             }
             else if(index == 2) {
-                cy.wrap(elem).type(password2)
+                cy.wrap(elem).clear().type(password2)
             }
         })
     }
@@ -99,6 +124,26 @@ class Admin {
     }
     adminAction(cypressMethod) {
         cypressMethod();
+    }
+    uploadFile(filePath) {
+        cy.get('input[type="file"].oxd-file-input').selectFile(filePath, { force: true })
+        cy.wait(1000)
+        cy.get('div.oxd-file-input-div').invoke('text').then(value => {
+            expect(filePath).to.include(value)
+        })
+        return cy.get('span.oxd-input-field-error-message')
+    }
+    interceptRequest(url, resp) {
+        cy.intercept({
+            method: 'GET',
+            url: url
+        }).as(resp)
+    }
+    waitForResponse(resp) {
+        cy.wait(`@${resp}`).then(interception=> {
+            expect(interception.response.statusCode).to.eq(200);
+        })
+        cy.wait(1000)
     }
 }
 
