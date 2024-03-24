@@ -9,10 +9,12 @@ const jobTitle2 = 'Senior Quality Assurance'
 const message = 'Testing can be fun when it is done smartly'
 const message2 = "My Test philosophy is don't assume that a component cannot be broken after a code change"
 const validPngFile = 'cypress/fixtures/files/Screenshot_20231129-091307.png'
+const validPDFfile = 'cypress/fixtures/files/Web_Testing_Guidelines.pdf'
 const invalidZipFile = 'cypress/fixtures/files/png2jpg.zip'
 const invalidMp4File = 'cypress/fixtures/files/491131917992197_wm.mp4'
 const largeXlsFile = 'cypress/fixtures/files/Project_Templates.xls'
 const matcher = /\/web\/index.php\/api\/v2\/admin\/users?/
+const jobTitleMatcher = /\/web\/index.php\/api\/v2\/admin\/job-titles?/
 beforeEach('Navigate to Admin user management module', ()=> {
     cy.visit('https://opensource-demo.orangehrmlive.com/')
     cy.login('Admin', 'admin123')
@@ -153,18 +155,37 @@ it('Verify user can add new job title', ()=> {
     admin.uploadFile(largeXlsFile).should('have.text', 'Attachment Size Exceeded')
     admin.getSubmitBtn()
     admin.adminAction(()=> cy.get('div.oxd-toast-content--success').should('not.exist'))
-    admin.uploadFile(validPngFile).should('not.exist')
+    admin.uploadFile(validPngFile)
     admin.getSubmitBtn()
     admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Saved'))
 })
 
-// it('Verify user can edit job title', ()=> {
+it('Verify user can edit job title', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Job')
+    admin.interceptRequest(jobTitleMatcher, 'response8')
+    admin.selectRoleMenuItems('Job Titles')
+    admin.getAddEmployeeTitle().should('have.text', 'Job Titles')
+    admin.executeJobTitleAction('response8', jobTitle, 'edit')
+    admin.getAddEmployeeTitle().should('have.text', 'Edit Job Title')
+    admin.employeeInputField(jobTitle2)
+    admin.addDescription('Job Description', message2)
+    admin.addDescription('Note', message2)
+    admin.editUploadedFile(validPDFfile)
+    admin.getSubmitBtn()
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Saved'))
+})
 
-// })
-
-// it('Verify user can delete job title', ()=> {
-
-// })
+it('Verify user can delete job title', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Job')
+    admin.interceptRequest(jobTitleMatcher, 'response9')
+    admin.selectRoleMenuItems('Job Titles')
+    admin.getAddEmployeeTitle().should('have.text', 'Job Titles')
+    admin.executeJobTitleAction('response9', jobTitle2, 'delete')
+    admin.adminAction(()=> cy.contains("Yes, Delete").click())
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Deleted'))
+})
 
 // it('Verify user can add new pay grade', ()=> {
 

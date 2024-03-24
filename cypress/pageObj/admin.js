@@ -1,6 +1,8 @@
 class Admin {
     options = ["User Management", "Job", "Organization", 
     "Qualifications", "Nationalities", "Corporate Branding", "Configuration", "More"];
+    data;
+    index;
     getAdminOptions() {
         return cy.get('.oxd-topbar-body-nav-tab')
     }
@@ -24,7 +26,6 @@ class Admin {
     }
     getAddEmployeeOptions(text) {
         return cy.get('div[role="option"]').contains(text)
-        //return cy.xpath(`//div[@role="option"]//span[text()="${text}"][1]`)
     }
     getSubmitBtn() {
         cy.get('button[type="submit"]').click()
@@ -133,6 +134,22 @@ class Admin {
         })
         return cy.get('span.oxd-input-field-error-message')
     }
+    editUploadedFile(filePath) {
+        const values = ["keepCurrent", "deleteCurrent", "replaceCurrent"]
+        let num = Math.round(Math.random() * values.length);
+        let index = num == 0 ? 0 : num - 1;
+        if(values[index] == 'keepCurrent') {
+            cy.get(`input[type="radio"][value=${values[index]}]`).click({force: true})
+        }
+        else if(values[index] == 'deleteCurrent') {
+            cy.get(`input[type="radio"][value=${values[index]}]`).click({force: true})
+        }
+        else {
+            cy.get(`input[type="radio"][value=${values[index]}]`).click({force: true}).then(()=> {
+                this.uploadFile(filePath)
+            })
+        }
+    }
     interceptRequest(url, resp) {
         cy.intercept({
             method: 'GET',
@@ -144,6 +161,46 @@ class Admin {
             expect(interception.response.statusCode).to.eq(200);
         })
         cy.wait(1000)
+    }
+    getJobTitleIndex(data, jobTitle) { 
+        return new Promise((resolve, reject)=> {
+            let dataIndex;
+            let flag = false;
+            data.forEach((value, index)=> {
+                if(value.title == jobTitle) {
+                    dataIndex = index
+                    flag = true
+                }
+            })
+            if(flag) {
+                resolve(dataIndex)
+            }
+            else {
+                reject(new Error('Element not found!!'))
+            }
+        })
+    }
+    jobTitleAction(action, index) {
+        const actions = []
+        cy.get('div[data-v-c423d1fa]').each(value => {
+            actions.push(value)
+        }).then(()=> {
+            if(action == "edit") {
+                cy.wrap(actions[index]).find('button:nth-child(2)').click()
+            }
+            else if(action == "delete") {
+                cy.wrap(actions[index]).find('button:nth-child(1)').click()
+            }
+        })
+    }
+    executeJobTitleAction(resp, title, action) {
+        cy.wait(`@${resp}`).then(interception=> {
+            let data = interception.response.body.data
+            expect(interception.response.statusCode).to.eq(200);
+            this.getJobTitleIndex(data, title).then(dataIndex => {
+                this.jobTitleAction(action, dataIndex)
+            })
+        })
     }
 }
 
