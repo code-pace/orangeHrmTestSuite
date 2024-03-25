@@ -24,11 +24,28 @@ class Admin {
     getAddEmployeeTitle() {
         return cy.get('h6.orangehrm-main-title')
     }
+    get_header_title(index, message) {
+        const elems = []
+        cy.get('h6.orangehrm-main-title').each(elem => {
+            elems.push(elem)
+            console.log(elem)
+        }).then(()=> {
+            cy.wrap(elems[index]).should('have.text', message)
+        }) 
+    }
     getAddEmployeeOptions(text) {
         return cy.get('div[role="option"]').contains(text)
     }
     getSubmitBtn() {
         cy.get('button[type="submit"]').click()
+    }
+    get_submit_btn(index) {
+        const elems = []
+        cy.get('button[type="submit"]').each(elem => {
+            elems.push(elem)
+        }).then(()=> {
+            cy.wrap(elems[index]).click()
+        })
     }
     getEmployeeInputField() {
         return cy.get('input[placeholder="Type for hints..."]')
@@ -84,16 +101,16 @@ class Admin {
         }  
     })
    }
-    populateInputField(username, password1, password2) {
+    populateInputField(value1, value2, value3) {
         cy.xpath('//div[contains(@class,"oxd-input-group")]//input[contains(@class,"oxd-input--active")]').each((elem, index)=> {
             if(index == 0) {
-                cy.wrap(elem).clear().type(username)
+                cy.wrap(elem).clear().type(value1)
             }
             else if(index == 1) {
-                cy.wrap(elem).clear().type(password1)
+                cy.wrap(elem).clear().type(value2)
             }
             else if(index == 2) {
-                cy.wrap(elem).clear().type(password2)
+                cy.wrap(elem).clear().type(value3)
             }
         })
     }

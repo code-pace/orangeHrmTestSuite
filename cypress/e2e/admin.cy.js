@@ -15,6 +15,10 @@ const invalidMp4File = 'cypress/fixtures/files/491131917992197_wm.mp4'
 const largeXlsFile = 'cypress/fixtures/files/Project_Templates.xls'
 const matcher = /\/web\/index.php\/api\/v2\/admin\/users?/
 const jobTitleMatcher = /\/web\/index.php\/api\/v2\/admin\/job-titles?/
+const payGradeMatcher = /\/web\/index.php\/api\/v2\/admin\/pay-grades?/ 
+const payGrade = 'Senior Salary'
+const minSalary = 50000
+const maxSalary = 50500
 beforeEach('Navigate to Admin user management module', ()=> {
     cy.visit('https://opensource-demo.orangehrmlive.com/')
     cy.login('Admin', 'admin123')
@@ -187,12 +191,31 @@ it('Verify user can delete job title', ()=> {
     admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Deleted'))
 })
 
-// it('Verify user can add new pay grade', ()=> {
-
-// })
+it('Verify user can add new pay grade', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Job')
+    admin.interceptRequest(payGradeMatcher, 'response')
+    admin.selectRoleMenuItems('Pay Grades')
+    admin.getAddEmployeeTitle().should('have.text', 'Pay Grades')
+    admin.clickEmployeeBtn('Add')
+    admin.getAddEmployeeTitle().should('have.text', 'Add Pay Grade')
+    admin.employeeInputField(payGrade)
+    admin.getSubmitBtn()
+    admin.clickEmployeeBtn('Add')
+    admin.selectEmployeeDropdownOptions(0, 'NGN - Nigerian Naira')
+    admin.populateInputField(payGrade, minSalary, maxSalary)
+    admin.get_submit_btn(1)
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Saved'))
+})
 
 // it('Verify user can edit pay grade', ()=> {
-
+//     const admin = new Admin()
+//     admin.gotoAdminMenu('Job')
+//     admin.interceptRequest(payGradeMatcher, 'response')
+//     admin.selectRoleMenuItems('Pay Grades')
+//     admin.getAddEmployeeTitle().should('have.text', 'Pay Grades')
+//     admin.executeJobTitleAction('response', payGrade, 'edit')
+//     admin.getAddEmployeeTitle().first().should('have.text', 'Edit Pay Grade')  
 // })
 
 // it('Verify user can delete pay grade', ()=> {
