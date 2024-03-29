@@ -16,9 +16,17 @@ const largeXlsFile = 'cypress/fixtures/files/Project_Templates.xls'
 const matcher = /\/web\/index.php\/api\/v2\/admin\/users?/
 const jobTitleMatcher = /\/web\/index.php\/api\/v2\/admin\/job-titles?/
 const payGradeMatcher = /\/web\/index.php\/api\/v2\/admin\/pay-grades?/ 
+const currencyMatcher = /\/web\/index.php\/api\/v2\/admin\/pay-grades\/\d+\/currencies?/ 
+const employeeMatcher = /\/web\/index.php\/api\/v2\/admin\/employment-statuses?/
 const payGrade = 'Senior Salary'
+const payGrade1 = 'Junior Salary'
+const currency = 'NGN - Nigerian Naira'
+const employeeStatus = 'Probation'
+const employeeStatus1 = 'Fulltime Confirm'
 const minSalary = 50000
 const maxSalary = 50500
+const minSalary1 = 20000
+const maxSalary1= 20500
 beforeEach('Navigate to Admin user management module', ()=> {
     cy.visit('https://opensource-demo.orangehrmlive.com/')
     cy.login('Admin', 'admin123')
@@ -202,34 +210,70 @@ it('Verify user can add new pay grade', ()=> {
     admin.employeeInputField(payGrade)
     admin.getSubmitBtn()
     admin.clickEmployeeBtn('Add')
-    admin.selectEmployeeDropdownOptions(0, 'NGN - Nigerian Naira')
+    admin.selectEmployeeDropdownOptions(0, currency)
     admin.populateInputField(payGrade, minSalary, maxSalary)
     admin.get_submit_btn(1)
     admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Saved'))
 })
 
-// it('Verify user can edit pay grade', ()=> {
-//     const admin = new Admin()
-//     admin.gotoAdminMenu('Job')
-//     admin.interceptRequest(payGradeMatcher, 'response')
-//     admin.selectRoleMenuItems('Pay Grades')
-//     admin.getAddEmployeeTitle().should('have.text', 'Pay Grades')
-//     admin.executeJobTitleAction('response', payGrade, 'edit')
-//     admin.getAddEmployeeTitle().first().should('have.text', 'Edit Pay Grade')  
-// })
+it('Verify user can edit pay grade', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Job')
+    admin.interceptRequest(payGradeMatcher, 'response')
+    admin.selectRoleMenuItems('Pay Grades')
+    admin.getAddEmployeeTitle().should('have.text', 'Pay Grades')
+    admin.interceptRequest(currencyMatcher, 'resp1')
+    admin.executeJobTitleAction('response', payGrade, 'edit')
+    admin.executeJobTitleAction('resp1', currency, 'edit')
+    admin.populateInputField(payGrade1, minSalary1, maxSalary1)
+    admin.get_submit_btn(0)
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Updated'))
+    admin.get_submit_btn(1)
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Updated'))
+})
 
-// it('Verify user can delete pay grade', ()=> {
+it('Verify user can delete pay grade', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Job')
+    admin.interceptRequest(payGradeMatcher, 'response')
+    admin.selectRoleMenuItems('Pay Grades')
+    admin.getAddEmployeeTitle().should('have.text', 'Pay Grades')
+    admin.executeJobTitleAction('response', payGrade1, 'delete')
+    admin.adminAction(()=> cy.contains("Yes, Delete").click())
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Deleted'))
+})
 
-// })
+it('Verify user can add new employment status', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Job')
+    admin.selectRoleMenuItems('Employment Status')
+    admin.clickEmployeeBtn('Add')
+    admin.getAddEmployeeTitle().should('have.text', 'Add Employment Status')
+    admin.employeeInputField(employeeStatus)
+    admin.getSubmitBtn()
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Saved'))
+})
 
-// it('Verify user can add new employment status', ()=> {
+it('Verify user can edit employment status', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Job')
+    admin.interceptRequest(employeeMatcher, 'response')
+    admin.selectRoleMenuItems('Employment Status')
+    admin.getAddEmployeeTitle().should('have.text', 'Employment Status')
+    admin.executeJobTitleAction('response', employeeStatus, 'edit')
+    admin.getAddEmployeeTitle().should('have.text', 'Edit Employment Status')
+    admin.employeeInputField(employeeStatus1)
+    admin.getSubmitBtn()
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Updated'))
+})
 
-// })
-
-// it('Verify user can edit employment status', ()=> {
-
-// })
-
-// it('Verify user can delete employment status', ()=> {
-
-// })
+it('Verify user can delete employment status', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Job')
+    admin.interceptRequest(employeeMatcher, 'response')
+    admin.selectRoleMenuItems('Employment Status')
+    admin.getAddEmployeeTitle().should('have.text', 'Employment Status')
+    admin.executeJobTitleAction('response', employeeStatus1, 'delete')
+    admin.adminAction(()=> cy.contains("Yes, Delete").click())
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Deleted'))
+})

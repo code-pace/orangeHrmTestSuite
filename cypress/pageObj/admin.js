@@ -102,16 +102,23 @@ class Admin {
     })
    }
     populateInputField(value1, value2, value3) {
-        cy.xpath('//div[contains(@class,"oxd-input-group")]//input[contains(@class,"oxd-input--active")]').each((elem, index)=> {
-            if(index == 0) {
-                cy.wrap(elem).clear().type(value1)
+        const elems = []
+        cy.xpath('//div[contains(@class,"oxd-input-group")]//input[contains(@class,"oxd-input--active")]').each((elem)=> {
+            if(!elem.prop('disabled')) {
+                elems.push(elem)
             }
-            else if(index == 1) {
-                cy.wrap(elem).clear().type(value2)
-            }
-            else if(index == 2) {
-                cy.wrap(elem).clear().type(value3)
-            }
+        }).then(()=> {
+            elems.forEach((elem, index)=> {
+                if(index == 0) {
+                    cy.wrap(elem).clear().type(value1)
+                }
+                else if(index == 1) {
+                    cy.wrap(elem).clear().type(value2)
+                }
+                else if(index == 2) {
+                    cy.wrap(elem).clear().type(value3)
+                }
+            })
         })
     }
     navigateToAdminModule() {
@@ -184,7 +191,15 @@ class Admin {
             let dataIndex;
             let flag = false;
             data.forEach((value, index)=> {
-                if(value.title == jobTitle) {
+                if(typeof value.title !== 'undefined' && value.title == jobTitle) {
+                    dataIndex = index
+                    flag = true
+                }
+                else if(typeof value.name !== 'undefined' && value.name == jobTitle) {
+                    dataIndex = index
+                    flag = true
+                }
+                else if(typeof value.currencyType !== 'undefined' && jobTitle.includes(value.currencyType.name)) {
                     dataIndex = index
                     flag = true
                 }
