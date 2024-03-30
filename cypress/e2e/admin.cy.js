@@ -18,6 +18,8 @@ const jobTitleMatcher = /\/web\/index.php\/api\/v2\/admin\/job-titles?/
 const payGradeMatcher = /\/web\/index.php\/api\/v2\/admin\/pay-grades?/ 
 const currencyMatcher = /\/web\/index.php\/api\/v2\/admin\/pay-grades\/\d+\/currencies?/ 
 const employeeMatcher = /\/web\/index.php\/api\/v2\/admin\/employment-statuses?/
+const jobCatMatcher = /\/web\/index.php\/api\/v2\/admin\/job-categories?/
+const workShiftMatcher = /\/web\/index.php\/api\/v2\/admin\/work-shifts?/
 const payGrade = 'Senior Salary'
 const payGrade1 = 'Junior Salary'
 const currency = 'NGN - Nigerian Naira'
@@ -27,6 +29,15 @@ const minSalary = 50000
 const maxSalary = 50500
 const minSalary1 = 20000
 const maxSalary1= 20500
+const jobCategory = 'Information Technology'
+const jobCategory1 = 'Academia'
+const workShift = 'Eastern Timezone +1'
+const workShift1 = 'Eastern Timezone +3'
+const fromTime = '10:15 AM'
+const toTime = '4:30 PM'
+const fromTime1 = '12:00 PM'
+const toTime1 = '8:30 PM'
+
 beforeEach('Navigate to Admin user management module', ()=> {
     cy.visit('https://opensource-demo.orangehrmlive.com/')
     cy.login('Admin', 'admin123')
@@ -277,3 +288,112 @@ it('Verify user can delete employment status', ()=> {
     admin.adminAction(()=> cy.contains("Yes, Delete").click())
     admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Deleted'))
 })
+
+it('Verify user can add new job category', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Job')
+    admin.selectRoleMenuItems('Job Categories')
+    admin.clickEmployeeBtn('Add')
+    admin.getAddEmployeeTitle().should('have.text', 'Add Job Category')
+    admin.employeeInputField(jobCategory)
+    admin.getSubmitBtn()
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Saved'))
+})
+
+it('Verify user can edit job category', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Job')
+    admin.interceptRequest(jobCatMatcher, 'response')
+    admin.selectRoleMenuItems('Job Categories')
+    admin.executeJobTitleAction('response', jobCategory, 'edit')
+    admin.getAddEmployeeTitle().should('have.text', 'Edit Job Category')
+    admin.employeeInputField(jobCategory1)
+    admin.getSubmitBtn()
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Updated'))
+})
+
+it('Verify user can delete job category', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Job')
+    admin.interceptRequest(jobCatMatcher, 'response')
+    admin.selectRoleMenuItems('Job Categories')
+    admin.getAddEmployeeTitle().should('have.text', 'Job Categories')
+    admin.executeJobTitleAction('response', jobCategory1, 'delete')
+    admin.adminAction(()=> cy.contains("Yes, Delete").click())
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Deleted'))
+})
+
+it('Verify user can add work shifts', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Job')
+    admin.selectRoleMenuItems('Work Shifts')
+    admin.clickEmployeeBtn('Add')
+    admin.getAddEmployeeTitle().should('have.text', 'Add Work Shift')
+    admin.employeeInputField(workShift)
+    admin.selectInputDateField(0)
+    admin.selectWorkingTime(fromTime)
+    admin.selectInputDateField(1)
+    admin.selectWorkingTime(toTime)
+    admin.selectInputDateField(1)
+    admin.checkDurationDiff(fromTime, toTime)
+    admin.getEmployeeInputField().click()
+    admin.getEmployeeInputField().clear().type(employeeName)
+    admin.getSubmitBtn()
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Saved'))
+})
+
+it('Verify user can edit work shifts', ()=> {
+    //Edit Work Shift
+    const admin = new Admin()
+    admin.gotoAdminMenu('Job')
+    admin.interceptRequest(workShiftMatcher, 'response')
+    admin.selectRoleMenuItems('Work Shifts')
+    admin.executeJobTitleAction('response', workShift, 'edit')
+    admin.getAddEmployeeTitle().should('have.text', 'Edit Work Shift')
+    admin.employeeInputField(workShift1)
+    admin.selectInputDateField(0)
+    admin.selectWorkingTime(fromTime1)
+    admin.selectInputDateField(1)
+    admin.selectWorkingTime(toTime1)
+    admin.selectInputDateField(1)
+    admin.checkDurationDiff(fromTime1, toTime1)
+    admin.getEmployeeInputField().click()
+    admin.getEmployeeInputField().clear().type(employeeName)
+    admin.getSubmitBtn()
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Updated'))
+})
+
+it('Verify user can delete work shifts', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Job')
+    admin.interceptRequest(workShiftMatcher, 'response')
+    admin.selectRoleMenuItems('Work Shifts')
+    admin.getAddEmployeeTitle().should('have.text', 'Work Shifts')
+    admin.executeJobTitleAction('response', workShift1, 'delete')
+    admin.adminAction(()=> cy.contains("Yes, Delete").click())
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Deleted'))
+})
+
+// it('Verify user can modify generation information', ()=> {
+
+// })
+
+// it('Verify user can add new location', ()=> {
+
+// })
+
+// it('Verify user can filter location by name, city, country', ()=> {
+
+// })
+
+// it('Verify user can edit location', ()=> {
+
+// })
+
+// it('Verify user can add new organisation structure', ()=> {
+
+// })
+
+// it('Verify user can edit organisation structure', ()=> {
+
+// })

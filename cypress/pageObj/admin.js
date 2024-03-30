@@ -234,6 +234,121 @@ class Admin {
             })
         })
     }
+    selectInputDateField(index) {
+        const elems = []
+        cy.get('input[placeholder="hh:mm"]').each(elem => {
+            elems.push(elem)
+        }).then(()=> {
+            cy.wrap(elems[index]).click()
+        })
+    }
+    timeBreakDown(time1) {
+        let hour, mins, daytime;
+        const time = time1.split(' ')
+        daytime = time[time.length - 1].trim()
+        hour = Number(time[0].split(':')[0].trim())
+        mins = Number(time[0].split(':')[time.length - 1].trim())
+        return {daytime, hour, mins}
+    }
+    changeHourCountBtn(action) {
+        if(action == 'down') {
+            cy.get('.oxd-time-hour-input-down').click()
+        }
+        else {
+            cy.get('.oxd-time-hour-input-up').click()
+        }
+    }
+    changeMinsCountBtn(action) {
+        if(action == 'down') {
+            cy.get('.oxd-time-minute-input-down').click()
+        }
+        else {
+            cy.get('.oxd-time-minute-input-up').click()
+        }
+    }
+    updateHour(hr) {
+        cy.get('input.oxd-time-hour-input-text')
+            .invoke('val')
+            .then(hour => {
+                hour = Number(hour)
+                if(hour == hr) {
+                    cy.log('hours: ' + hr)
+                    return;
+                }
+                else if(hour > hr) {
+                    this.changeHourCountBtn('down')
+                    this.updateHour(hr)
+                }
+                else if(hour < hr) {
+                    this.changeHourCountBtn('up')
+                    this.updateHour(hr)
+                }
+            })
+    }
+    
+    updateMins(mins) {
+        cy.get('input.oxd-time-minute-input-text')
+            .invoke('val')
+            .then(min => {
+                min = Number(min)
+                console.log(min)
+                if(min == mins) {
+                    cy.log('mins: ' + min)
+                    return;
+                }
+                else if(min > mins) {
+                    this.changeMinsCountBtn('down')
+                    this.updateMins(mins)
+                }
+                else if(min < mins) {
+                    this.changeMinsCountBtn('up')
+                    this.updateMins(mins)
+                }
+            })
+    }
+    updateDayTime(dt) {
+        cy.get(`input[value=${dt}]`).click()
+    }
+    selectWorkingTime(time) {
+        let {daytime, hour, mins} = this.timeBreakDown(time)
+        this.updateHour(hour)
+        this.updateMins(mins)
+        this.updateDayTime(daytime)
+    }
+    getTimeDiff(FromTime, ToTime) {
+        let fromTime = this.timeBreakDown(FromTime)
+        let toTime = this.timeBreakDown(ToTime)
+        let fromMins, toMins
+        if(fromTime.daytime == 'AM') {
+            fromMins = fromTime.hour !== 12 ? 
+                    (fromTime.hour * 60) + fromTime.mins : 
+                    0 + fromTime.mins;
+        }
+        if(fromTime.daytime == 'PM') {
+            fromMins = fromTime.hour !== 12 ?
+                    ((fromTime.hour + 12) * 60) + fromTime.mins :
+                    (fromTime.hour * 60) + fromTime.mins;
+        }
+        if(toTime.daytime == 'AM') {
+            toMins = toTime.hour !== 12 ?
+                    (toTime.hour * 60) + toTime.mins :
+                    0 + toTime.mins;
+        }
+        if(toTime.daytime == 'PM') {
+            toMins = toTime.hour !== 12 ? 
+                    ((toTime.hour + 12) * 60) + toTime.mins :
+                    (toTime.hour * 60) + toTime.mins;
+        }
+        let timeDiffInMins = fromMins - toMins
+        let timeDiffInHours = timeDiffInMins / 60
+        timeDiffInHours = timeDiffInHours.toString()
+        return timeDiffInHours.startsWith('-') ? timeDiffInHours.slice(1) : timeDiffInHours;
+    }
+    checkDurationDiff(FromTime, ToTime) {
+        cy.get('.orangehrm-workshift-duration').invoke('text').then(value => {
+            expect(value).to.contain(this.getTimeDiff(FromTime, ToTime))
+        })
+    }
 }
 
 export default Admin;
