@@ -343,7 +343,6 @@ it('Verify user can add work shifts', ()=> {
 })
 
 it('Verify user can edit work shifts', ()=> {
-    //Edit Work Shift
     const admin = new Admin()
     admin.gotoAdminMenu('Job')
     admin.interceptRequest(workShiftMatcher, 'response')
@@ -374,9 +373,33 @@ it('Verify user can delete work shifts', ()=> {
     admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Deleted'))
 })
 
-// it('Verify user can modify generation information', ()=> {
-
-// })
+it('Verify user can modify generation information', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Organization')
+    admin.selectRoleMenuItems('General Information')
+    admin.getAddEmployeeTitle().should('have.text', 'General Information')
+    admin.toggleCheckbox()
+    admin.getElementFromParentElem('input', 'Organization Name', ' ')
+    admin.getElementFromParentElem('input', 'Registration Number', '482938')
+    admin.getElementFromParentElem('input','Tax ID', 'PD4388')
+    admin.getElementFromParentElem('input','Phone', '09055551111')
+    admin.getElementFromParentElem('input','Fax', '1111')
+    admin.getElementFromParentElem('input','Address Street 1', 'No. 1 cresent street')
+    admin.getElementFromParentElem('input','Address Street 2', "Heaven's gate")
+    admin.getElementFromParentElem('input','City', 'Bangalore')
+    admin.getElementFromParentElem('input','State/Province', 'Karnataka')
+    admin.getElementFromParentElem('input','Zip/Postal Code', '560232')
+    admin.getElementFromParentElem('select','Country', 'India')
+    admin.getElementFromParentElem('textarea', 'Notes', 'Dont stop testing!!!')
+    admin.getSubmitBtn()
+    admin.getElementFromParentElem('span', 'Organization Name', 'Required')
+    admin.getElementFromParentElem('input', 'Organization Name', 'Vodafone')
+    admin.getSubmitBtn()
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Updated'))
+    admin.gotoAdminUserDropdown()
+    admin.selectRoleMenuItems('About')
+    admin.checkAboutInfo('Vodafone')
+})
 
 // it('Verify user can add new location', ()=> {
 

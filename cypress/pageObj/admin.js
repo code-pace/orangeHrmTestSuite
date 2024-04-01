@@ -12,11 +12,17 @@ class Admin {
     gotoAdminMenu(menu) {
         cy.xpath(`//span[text()="${menu} "]`).click()
     }
+    gotoAdminUserDropdown() {
+        cy.get('.oxd-userdropdown-tab').click()
+    }
     roleMenuItems() {
         cy.get('a[role="menuitem"]').click()
     }
     selectRoleMenuItems(menuItem) {
         cy.xpath(`//a[@role="menuitem" and text()="${menuItem}"]`).click()
+    }
+    checkAboutInfo(message) {
+        cy.get('.orangehrm-about-text').contains(message)
     }
     clickEmployeeBtn(text) {
         cy.xpath(`//button[text()=" ${text} "]`).click()
@@ -28,7 +34,6 @@ class Admin {
         const elems = []
         cy.get('h6.orangehrm-main-title').each(elem => {
             elems.push(elem)
-            console.log(elem)
         }).then(()=> {
             cy.wrap(elems[index]).should('have.text', message)
         }) 
@@ -66,6 +71,9 @@ class Admin {
             }
         })
     }
+    toggleCheckbox() {
+        cy.get('input[type="checkbox"]').check({force: true})
+    }
     checkDisplayPassword() {
         cy.get('input[type="checkbox"]').should('not.be.checked')
         cy.xpath('//div[contains(@class,"oxd-input-group")]//input[contains(@class,"oxd-input--active")]').each((elem, index)=> {
@@ -76,8 +84,7 @@ class Admin {
                 cy.wrap(elem).should('not.be.visible')
             }
         })
-        cy.get('input[type="checkbox"]').check({force: true})
-
+        this.toggleCheckbox()
     }
    selectEmployeeDropdownOptions(id, options) {
     const dropdown = []
@@ -291,7 +298,6 @@ class Admin {
             .invoke('val')
             .then(min => {
                 min = Number(min)
-                console.log(min)
                 if(min == mins) {
                     cy.log('mins: ' + min)
                     return;
@@ -348,6 +354,18 @@ class Admin {
         cy.get('.orangehrm-workshift-duration').invoke('text').then(value => {
             expect(value).to.contain(this.getTimeDiff(FromTime, ToTime))
         })
+    }
+    getElementFromParentElem(elemType, fieldName, message) {
+        const elems = []
+        cy.get('div.oxd-input-field-bottom-space').each(value => elems.push(value))
+        .then(()=> {
+            let newElem = elems.filter(value => value.text().includes(fieldName))
+            console.log(newElem)
+            elemType == 'input' ? cy.wrap(newElem[0]).find('input').clear().type(message) :
+            elemType == 'span' ? cy.wrap(newElem[0]).find('span').contains(message) :
+            elemType == 'textarea' ? cy.wrap(newElem[0]).find('textarea').clear().type(message) :
+            this.selectEmployeeDropdownOptions(0, message)
+        });
     }
 }
 
