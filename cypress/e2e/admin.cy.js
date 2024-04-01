@@ -20,6 +20,7 @@ const currencyMatcher = /\/web\/index.php\/api\/v2\/admin\/pay-grades\/\d+\/curr
 const employeeMatcher = /\/web\/index.php\/api\/v2\/admin\/employment-statuses?/
 const jobCatMatcher = /\/web\/index.php\/api\/v2\/admin\/job-categories?/
 const workShiftMatcher = /\/web\/index.php\/api\/v2\/admin\/work-shifts?/
+const locationMatcher = /\/web\/index.php\/api\/v2\/admin\/locations?/
 const payGrade = 'Senior Salary'
 const payGrade1 = 'Junior Salary'
 const currency = 'NGN - Nigerian Naira'
@@ -54,7 +55,6 @@ it('Verify Admin options displayed', ()=> {
     const admin = new Admin()
     admin.validateAdminOptions()
 })
-
 
 it('Verify user can create an employee', ()=> {
     const admin = new Admin()
@@ -373,7 +373,7 @@ it('Verify user can delete work shifts', ()=> {
     admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Deleted'))
 })
 
-it('Verify user can modify generation information', ()=> {
+it('Verify user can modify general information', ()=> {
     const admin = new Admin()
     admin.gotoAdminMenu('Organization')
     admin.selectRoleMenuItems('General Information')
@@ -401,13 +401,47 @@ it('Verify user can modify generation information', ()=> {
     admin.checkAboutInfo('Vodafone')
 })
 
-// it('Verify user can add new location', ()=> {
+it('Verify user can add new location', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Organization')
+    admin.selectRoleMenuItems('Locations')
+    admin.clickEmployeeBtn('Add')
+    admin.getAddEmployeeTitle().should('have.text', 'Add Location')
+    admin.getElementFromParentElem('input', 'Name', 'Vodafone Head Quarter')
+    admin.getElementFromParentElem('input','Phone', '09055551111')
+    admin.getElementFromParentElem('textarea','Address', 'No. 1 cresent street')
+    admin.getElementFromParentElem('input','City', 'Bangalore')
+    admin.getElementFromParentElem('input','State/Province', 'Karnataka')
+    admin.getElementFromParentElem('input','Zip/Postal Code', '560232')
+    admin.getElementFromParentElem('select','Country', 'India')
+    admin.getElementFromParentElem('input','Fax', '1111')
+    admin.getElementFromParentElem('textarea', 'Notes', 'Dont stop testing!!!')
+    admin.getSubmitBtn()
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Saved'))
+})
 
-// })
-
-// it('Verify user can filter location by name, city, country', ()=> {
-
-// })
+it('Verify user can filter location by name, city, country', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Organization')
+    admin.selectRoleMenuItems('Locations')
+    admin.getElementFromParentElem('input', 'Name', 'Vodafone Head Quarter')
+    admin.interceptRequest(locationMatcher, 'response1')
+    admin.clickEmployeeBtn('Search')
+    admin.waitForResponse('response1')
+    admin.checkValueExists('Vodafone Head Quarter')
+    admin.getElementFromParentElem('input', 'Name', ' ')
+    admin.getElementFromParentElem('input','City', 'Bangalore')
+    admin.interceptRequest(locationMatcher, 'response1')
+    admin.clickEmployeeBtn('Search')
+    admin.waitForResponse('response1')
+    admin.checkValueExists('Bangalore')
+    admin.getElementFromParentElem('input', 'City', ' ')
+    admin.getElementFromParentElem('select','Country', 'India')
+    admin.interceptRequest(locationMatcher, 'response1')
+    admin.clickEmployeeBtn('Search')
+    admin.waitForResponse('response1')
+    admin.checkValueExists('India')
+})
 
 // it('Verify user can edit location', ()=> {
 

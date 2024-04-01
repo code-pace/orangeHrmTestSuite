@@ -360,7 +360,6 @@ class Admin {
         cy.get('div.oxd-input-field-bottom-space').each(value => elems.push(value))
         .then(()=> {
             let newElem = elems.filter(value => value.text().includes(fieldName))
-            console.log(newElem)
             elemType == 'input' ? cy.wrap(newElem[0]).find('input').clear().type(message) :
             elemType == 'span' ? cy.wrap(newElem[0]).find('span').contains(message) :
             elemType == 'textarea' ? cy.wrap(newElem[0]).find('textarea').clear().type(message) :
