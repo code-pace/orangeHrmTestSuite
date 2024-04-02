@@ -196,7 +196,7 @@ it('Verify user can edit job title', ()=> {
     admin.addDescription('Note', message2)
     admin.editUploadedFile(validPDFfile)
     admin.getSubmitBtn()
-    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Saved'))
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Updated'))
 })
 
 it('Verify user can delete job title', ()=> {
@@ -443,9 +443,34 @@ it('Verify user can filter location by name, city, country', ()=> {
     admin.checkValueExists('India')
 })
 
-// it('Verify user can edit location', ()=> {
+it('Verify user can edit location', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Organization')
+    admin.interceptRequest(locationMatcher, 'response')
+    admin.selectRoleMenuItems('Locations')
+    admin.executeJobTitleAction('response', 'Vodafone Head Quarter', 'edit')
+    admin.getElementFromParentElem('input', 'Name', 'Etisalat Head Quarter')
+    admin.getElementFromParentElem('input','Phone', '23255551111')
+    admin.getElementFromParentElem('textarea','Address', "Heaven's gate")
+    admin.getElementFromParentElem('input','City', 'Brentwood')
+    admin.getElementFromParentElem('input','State/Province', 'New York')
+    admin.getElementFromParentElem('input','Zip/Postal Code', '560232')
+    admin.getElementFromParentElem('select','Country', 'United States')
+    admin.getElementFromParentElem('input','Fax', '4322')
+    admin.getElementFromParentElem('textarea', 'Note', 'Dont stop calling')
+    admin.getSubmitBtn()
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Updated'))
+})
 
-// })
+it('Verify user can delete location', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Organization')
+    admin.interceptRequest(locationMatcher, 'response')
+    admin.selectRoleMenuItems('Locations')
+    admin.executeJobTitleAction('response', 'Etisalat Head Quarter', 'delete')
+    admin.adminAction(()=> cy.contains("Yes, Delete").click())
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Deleted'))
+})
 
 // it('Verify user can add new organisation structure', ()=> {
 
