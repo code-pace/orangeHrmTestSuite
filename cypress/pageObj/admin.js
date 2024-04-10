@@ -219,9 +219,18 @@ class Admin {
             }
         })
     }
+    isElementExist() {
+        cy.get('div[data-v-8a31f039]').then(el => {
+            if(el.length > 0) {
+                return cy.wrap(el)
+            }else {
+                return cy.get('div[data-v-c423d1fa]')
+            }
+        })
+    }
     jobTitleAction(action, index) {
         const actions = []
-        cy.get('div[data-v-c423d1fa]').each(value => {
+        cy.get(action == 'add' ? 'div[data-v-8a31f039]' : 'div[data-v-c423d1fa]').each(value => {
             actions.push(value)
         }).then(()=> {
             if(action == "edit") {
@@ -230,14 +239,59 @@ class Admin {
             else if(action == "delete") {
                 cy.wrap(actions[index]).find('button:nth-child(1)').click()
             }
+            else {
+                cy.wrap(actions[index]).find('button:nth-child(3)').click()
+            }
+        })
+    }
+    subunitAction(action, index, unitTitle) {
+        const elems = []
+        cy.get('div.oxd-tree-node-wrapper').each(elem => {
+            elems.push(elem)
+        }).then(()=> {
+            cy.wrap(elems[index]).find('span.oxd-tree-node-toggle > button').click()
+            cy.contains(unitTitle).parent().then(el => {
+                if(action == 'edit') {
+                    cy.wrap(el).find('button:nth-child(2)').click()
+                }
+                else if(action == 'delete') {
+                    cy.wrap(el).find('button:nth-child(1)').click()
+                }
+                else {
+                    cy.wrap(el).find('button:nth-child(3)').click()
+                }
+            })
         })
     }
     executeJobTitleAction(resp, title, action) {
-        cy.wait(`@${resp}`).then(interception=> {
-            let data = interception.response.body.data
-            expect(interception.response.statusCode).to.eq(200);
+            cy.wait(`@${resp}`).then(interception=> {
+            let response = interception.response;
+            let data;
+            if(response.url.includes('subunits')) {
+                data = response.body.data[0].children
+            }
+            else {
+                data = response.body.data
+            }
+            expect(response.statusCode).to.eq(200);
             this.getJobTitleIndex(data, title).then(dataIndex => {
                 this.jobTitleAction(action, dataIndex)
+            })
+        })
+    }
+    executeSubunitAction(resp, title, unitTitle, action) {
+        cy.wait(`@${resp}`).then(interception=> {
+            let response = interception.response;
+            let data;
+            if(response.url.includes('subunits')) {
+                data = response.body.data[0].children
+            }
+            else {
+                data = response.body.data
+            }
+            expect(response.statusCode).to.eq(200);
+            this.getJobTitleIndex(data, title).then(dataIndex => {
+                this.subunitAction(action, dataIndex, unitTitle)
             })
         })
     }

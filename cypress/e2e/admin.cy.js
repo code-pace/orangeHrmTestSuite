@@ -21,6 +21,7 @@ const employeeMatcher = /\/web\/index.php\/api\/v2\/admin\/employment-statuses?/
 const jobCatMatcher = /\/web\/index.php\/api\/v2\/admin\/job-categories?/
 const workShiftMatcher = /\/web\/index.php\/api\/v2\/admin\/work-shifts?/
 const locationMatcher = /\/web\/index.php\/api\/v2\/admin\/locations?/
+const structureMatcher = /\/web\/index.php\/api\/v2\/admin\/subunits?/
 const payGrade = 'Senior Salary'
 const payGrade1 = 'Junior Salary'
 const currency = 'NGN - Nigerian Naira'
@@ -38,6 +39,12 @@ const fromTime = '10:15 AM'
 const toTime = '4:30 PM'
 const fromTime1 = '12:00 PM'
 const toTime1 = '8:30 PM'
+const structure = 'Information Technology'
+const subunit = 'Security Operation'
+const subunit1 = 'Cyber Security'
+const unitId = '4390'
+const unitId1 = '55'
+const unitId2 = '56'
 
 beforeEach('Navigate to Admin user management module', ()=> {
     cy.visit('https://opensource-demo.orangehrmlive.com/')
@@ -472,10 +479,47 @@ it('Verify user can delete location', ()=> {
     admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Deleted'))
 })
 
-// it('Verify user can add new organisation structure', ()=> {
+it('Verify user can add new organisation structure', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Organization')
+    admin.selectRoleMenuItems('Structure')
+    admin.getAddEmployeeTitle().should('have.text', 'Organization Structure')
+    admin.toggleCheckbox()
+    admin.clickEmployeeBtn('Add')
+    admin.getElementFromParentElem('input','Unit Id', unitId)
+    admin.getElementFromParentElem('input','Name', structure)
+    admin.getElementFromParentElem('textarea','Description', message)
+    admin.getSubmitBtn()
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Saved'))
+})
 
-// })
-
+it('Verify user can add units to the organisation', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Organization')
+    admin.interceptRequest(structureMatcher, 'response')
+    admin.selectRoleMenuItems('Structure')
+    admin.toggleCheckbox()
+    admin.executeJobTitleAction('response', structure, 'add')
+    admin.adminAction(()=> cy.contains(`This unit will be added under ${unitId}: ${structure}`))
+    admin.getElementFromParentElem('input','Unit Id', unitId1)
+    admin.getElementFromParentElem('input','Name', subunit)
+    admin.getElementFromParentElem('textarea','Description', message2)
+    admin.getSubmitBtn()
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Saved'))
+})
+it('Verify user can edit sub unit', ()=> {
+    const admin = new Admin()
+    admin.gotoAdminMenu('Organization')
+    admin.interceptRequest(structureMatcher, 'response')
+    admin.selectRoleMenuItems('Structure')
+    admin.toggleCheckbox()
+    admin.executeSubunitAction('response', structure, subunit, 'edit')
+    admin.getElementFromParentElem('input','Unit Id', unitId2)
+    admin.getElementFromParentElem('input','Name', subunit1)
+    admin.getElementFromParentElem('textarea','Description', message)
+    admin.getSubmitBtn()
+    admin.adminAction(()=> cy.validateSuccessAction('Success', 'Successfully Updated'))
+})
 // it('Verify user can edit organisation structure', ()=> {
 
 // })
