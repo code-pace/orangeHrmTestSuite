@@ -4,12 +4,16 @@
   "description": "End to End test for orangeHrm application",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "cy:test": "npx cypress run --spec 'cypress\\e2e\\**.cy.js'",
+    "cy:test:admin": "npx cypress run --spec 'cypress\\e2e\\admin.cy.js'",
+    "cy:chrome:test": "npx cypress run --browser chrome --spec 'cypress\\e2e\\**.cy.js'",
+    "cy:test:report": "npx cypress run --browser chrome --spec 'cypress\\e2e\\**.cy.js'"
   },
   "author": "code-pace",
   "license": "ISC",
   "devDependencies": {
     "cypress": "^13.6.2",
+    "cypress-mochawesome-reporter": "^3.8.2",
     "cypress-xpath": "^2.0.1"
   }
 }
